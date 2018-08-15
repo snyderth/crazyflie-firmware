@@ -473,6 +473,12 @@ static void dwm1000Init(DeckInfo *info)
   isInit = true;
 }
 
+
+uint16_t locodeckGetAnchorState(){
+  return algoOptions.rangingState;
+}
+
+
 static bool dwm1000Test()
 {
   if (!isInit) {
@@ -494,6 +500,7 @@ static const DeckDriver dwm1000_deck = {
   .init = dwm1000Init,
   .test = dwm1000Test,
 };
+
 
 DECK_DRIVER(dwm1000_deck);
 

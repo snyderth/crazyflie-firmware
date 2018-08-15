@@ -18,12 +18,13 @@ PYTHON2           ?= python2
 DFU_UTIL          ?= dfu-util
 CLOAD             ?= 1
 DEBUG             ?= 0
-CLOAD_SCRIPT      ?= python3 -m cfloader
+CLOAD_SCRIPT      ?= ../crazyflie-clients-python/bin/cfloader
+#python3 -m cfloader
 CLOAD_CMDS        ?=
 CLOAD_ARGS        ?=
 PLATFORM					?= CF2
 LPS_TDMA_ENABLE   ?= 0
-LPS_TDOA_ENABLE   ?= 0
+LPS_TDOA_ENABLE   ?= 1
 
 ######### Stabilizer configuration ##########
 ##### Sets the name of the stabilizer module to use.
@@ -161,6 +162,9 @@ PROJ_OBJ_CF2 += estimator_kalman.o
 
 # High-Level Commander
 PROJ_OBJ += crtp_commander_high_level.o planner.o pptraj.o
+
+#	Autonomous
+PROJ_OBJ += autonomous.o sequencer.o
 
 # Deck Core
 PROJ_OBJ_CF2 += deck.o deck_info.o deck_drivers.o deck_test.o

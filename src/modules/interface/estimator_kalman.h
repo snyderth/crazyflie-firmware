@@ -79,4 +79,10 @@ void estimatorKalmanSetShift(float deltax, float deltay);
 
 void estimatorKalmanGetEstimatedPos(point_t* pos);
 
+
+float getVarPX();
+float getVarPY();
+float getVarPZ();
+
+
 #endif // __ESTIMATOR_KALMAN_H__

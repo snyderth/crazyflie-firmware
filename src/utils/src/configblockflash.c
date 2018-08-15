@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -58,7 +58,7 @@ static uint8_t calculate_cksum(void* data, size_t len)
   unsigned char* c = data;
   int i;
   unsigned char cksum=0;
-  
+
   for (i=0; i<len; i++)
     cksum += *(c++);
 
@@ -67,22 +67,26 @@ static uint8_t calculate_cksum(void* data, size_t len)
 
 int configblockInit(void)
 {
+  // consolePrintf("Initializing Config Block...");
+
   configblock = (void*)CONFIG_BLOCK_ADDRESS;
 
   //Verify the config block
-  if (configblock->magic!=MAGIC || configblock->version!= VERSION || 
+  if (configblock->magic!=MAGIC || configblock->version!= VERSION ||
       calculate_cksum(configblock, sizeof(*configblock)) )
   {
+    // consolePrintf("Verification [FAIL]\n");
     DEBUG_PRINT("Verification [FAIL]\n");
     return -1;
   }
   else
   {
+    // consolePrintf("Verification [OK]");
     DEBUG_PRINT("v%d, verification [OK]\n", configblock->version);
     cb_ok = true;
   }
 
-  
+
   return 0;
 }
 
@@ -123,4 +127,3 @@ float configblockGetCalibRoll(void)
   else
     return 0;
 }
-

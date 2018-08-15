@@ -69,7 +69,7 @@
 
 #include "math.h"
 #include "arm_math.h"
-
+#include "debug.h"
 //#define KALMAN_USE_BARO_UPDATE
 //#define KALMAN_NAN_CHECK
 
@@ -971,6 +971,7 @@ static void stateEstimatorUpdateWithTDOA(tdoaMeasurement_t *tdoa)
   float x = S[STATE_X];
   float y = S[STATE_Y];
   float z = S[STATE_Z];
+  //DEBUG_PRINT("esitmator kalman line 974: Z height: %f\n", (double)S[STATE_Z]);
 
   float x1 = tdoa->anchorPosition[1].x, y1 = tdoa->anchorPosition[1].y, z1 = tdoa->anchorPosition[1].z;
   float x0 = tdoa->anchorPosition[0].x, y0 = tdoa->anchorPosition[0].y, z0 = tdoa->anchorPosition[0].z;
@@ -1434,6 +1435,19 @@ void estimatorKalmanGetEstimatedPos(point_t* pos) {
   pos->y = S[STATE_Y];
   pos->z = S[STATE_Z];
 }
+
+
+float getVarPX(){
+  return P[STATE_PX][STATE_PX];
+}
+float getVarPY(){
+  return P[STATE_PY][STATE_PY];
+}
+float getVarPZ(){
+  // DEBUG_PRINT("Z height (line 1447 esitmator kalman): %f\n", (double)P[STATE_PZ][STATE_PZ]);
+  return P[STATE_PZ][STATE_PZ];
+}
+
 
 // Temporary development groups
 LOG_GROUP_START(kalman_states)

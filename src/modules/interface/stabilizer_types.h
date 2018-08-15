@@ -173,6 +173,15 @@ typedef struct setpoint_s {
     stab_mode_t yaw;
     stab_mode_t quat;
   } mode;
+
+  bool setEmergency;
+  bool resetEmergency;
+  uint8_t xmode,ymode,zmode;
+  float x[5];
+  float y[5];
+  float z[5];
+  float yaw[5];
+  float gamma[4][5];
 } setpoint_t;
 
 /** Estimate of position */

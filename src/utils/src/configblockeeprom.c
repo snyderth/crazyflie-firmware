@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -110,7 +110,7 @@ static uint8_t calculate_cksum(void* data, size_t len)
   unsigned char* c = data;
   int i;
   unsigned char cksum=0;
-  
+
   for (i=0; i<len; i++)
     cksum += *(c++);
 
@@ -121,7 +121,7 @@ int configblockInit(void)
 {
   if(isInit)
     return 0;
-
+  // consolePrintf("Initializing Config Block...");
   i2cdevInit(I2C1_DEV);
   eepromInit(I2C1_DEV);
 
@@ -141,17 +141,20 @@ int configblockInit(void)
           if (configblockCheckChecksum(&configblock))
           {
             // Everything is fine
+             // consolePrintf("MEEEE, Verification [OK]\n");
             DEBUG_PRINT("v%d, verification [OK]\n", configblock.version);
             cb_ok = true;
           }
           else
           {
+            // consolePrintf("Vericication [FAIL]\n");
             DEBUG_PRINT("Verification [FAIL]\n");
             cb_ok = false;
           }
         }
         else // configblockCheckVersion
         {
+          consolePrintf("Checking version of config\n");
           // Check data integrity of old version data
           if (configblock.version <= VERSION &&
               configblockCheckDataIntegrity((uint8_t *)&configblock, configblock.version))
@@ -175,7 +178,7 @@ int configblockInit(void)
       }
     }
   }
-
+  consolePrintf("Passed eeprom test\n");
   if (cb_ok == false)
   {
     // Copy default data to used structure.
@@ -191,6 +194,7 @@ int configblockInit(void)
     }
   }
 
+  consolePrintf("Exiting Config init\n");
   isInit = true;
 
   return 0;

@@ -49,7 +49,7 @@
 #define PROTOCOL_VERSION 3
 
 #ifdef STM32F4XX
-  #define P_NAME "Crazyflie 2.0"
+  #define P_NAME "HMT Crazyflie 2.0"
   #define QUAD_FORMATION_X
 
   #define CONFIG_BLOCK_ADDRESS    (2048 * (64-1))

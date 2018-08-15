@@ -79,6 +79,7 @@ task.h is included from an application file. */
 #include "task.h"
 #include "queue.h"
 #include "timers.h"
+#include "debug.h"
 
 #if ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 0 )
 	#error configUSE_TIMERS must be set to 1 to make the xTimerPendFunctionCall() function available.
@@ -317,7 +318,7 @@ BaseType_t xTimerGenericCommand( TimerHandle_t xTimer, const BaseType_t xCommand
 {
 BaseType_t xReturn = pdFAIL;
 DaemonTaskMessage_t xMessage;
-
+	//DEBUG_PRINT("Starting Timer (timers.c: line 320)\n");
 	configASSERT( xTimer );
 
 	/* Send a message to the timer service task to perform a particular action
@@ -924,6 +925,3 @@ Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 to include software timer functionality.  If you want to include software timer
 functionality then ensure configUSE_TIMERS is set to 1 in FreeRTOSConfig.h. */
 #endif /* configUSE_TIMERS == 1 */
-
-
-

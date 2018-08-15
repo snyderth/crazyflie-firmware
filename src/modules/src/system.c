@@ -63,6 +63,7 @@
 #include "sysload.h"
 #include "deck.h"
 #include "extrx.h"
+#include "autonomous.h"
 
 /* Private variable */
 static bool selftestPassed;
@@ -99,7 +100,7 @@ void systemInit(void)
   /* Initialized hear and early so that DEBUG_PRINT (buffered) can be used early */
   crtpInit();
   consoleInit();
-
+  // consolePrintf("Booting...\n");
   DEBUG_PRINT("----------------------------\n");
   DEBUG_PRINT(P_NAME " is up and running!\n");
   DEBUG_PRINT("Build %s:%s (%s) %s\n", V_SLOCAL_REVISION,
@@ -107,13 +108,22 @@ void systemInit(void)
   DEBUG_PRINT("I am 0x%08X%08X%08X and I have %dKB of flash!\n",
               *((int*)(MCU_ID_ADDRESS+8)), *((int*)(MCU_ID_ADDRESS+4)),
               *((int*)(MCU_ID_ADDRESS+0)), *((short*)(MCU_FLASH_SIZE_ADDRESS)));
-
+  DEBUG_PRINT("BOOTING\n");
+  // consolePrintf("Still Booting...\n");
   configblockInit();
+  // consolePrintf("config init complete\n");
   workerInit();
+  // consolePrintf("worker init complete\n");
   adcInit();
+  // consolePrintf("ADC init complete\n");
   ledseqInit();
+  // consolePrintf("LED init complete\n");
   pmInit();
+  // consolePrintf("Battery init complete\n");
   buzzerInit();
+  // consolePrintf("Buzzer init complete\n");
+  //autonomousInit();
+  // consolePrintf("Autonomous init complete\n");
 
   isInit = true;
 }
