@@ -44,9 +44,13 @@ The implementation must handle
 
 #include <string.h>
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "lpsTdoa3Tag.h"
-#include "lpsTdoaTagEngine.h"
-#include "lpsTdoaTagStats.h"
+#include "tdoaEngine.h"
+#include "tdoaStats.h"
+#include "estimator_kalman.h"
 
 #include "libdw1000.h"
 #include "mac.h"
@@ -54,7 +58,8 @@ The implementation must handle
 #define DEBUG_MODULE "TDOA3"
 #include "debug.h"
 #include "cfassert.h"
-
+#include "log.h"
+#include "param.h"
 
 // Positions for sent LPP packets
 #define LPS_TDOA3_TYPE 0
@@ -97,6 +102,9 @@ static lpsAlgoOptions_t* options;
 // Outgoing LPP packet
 static lpsLppShortPacket_t lppPacket;
 
+static bool rangingOk;
+
+static tdoaEngineState_t engineState;
 
 // TODO krri Find better way to communicate system state to the client. Currently only supports 8 anchors
 static void updateRangingState() {
@@ -108,14 +116,12 @@ static void updateRangingState() {
 //  }
 }
 
-static bool rangingOk;
-
 
 static bool isValidTimeStamp(const int64_t anchorRxTime) {
   return anchorRxTime != 0;
 }
 
-static int updateRemoteData(anchorInfo_t* anchorCtx, const void* payload) {
+static int updateRemoteData(tdoaAnchorContext_t* anchorCtx, const void* payload) {
   const rangePacket3_t* packet = (rangePacket3_t*)payload;
   const void* anchorDataPtr = &packet->remoteAnchorData;
   for (uint8_t i = 0; i < packet->header.remoteCount; i++) {
@@ -126,18 +132,19 @@ static int updateRemoteData(anchorInfo_t* anchorCtx, const void* payload) {
     uint8_t remoteSeqNr = anchorData->seq & 0x7f;
 
     if (isValidTimeStamp(remoteRxTime)) {
-      tdoaEngineSetRemoteRxTime(anchorCtx, remoteId, remoteRxTime, remoteSeqNr);
+      tdoaStorageSetRemoteRxTime(anchorCtx, remoteId, remoteRxTime, remoteSeqNr);
     }
 
     bool hasDistance = ((anchorData->seq & 0x80) != 0);
     if (hasDistance) {
       int64_t tof = anchorData->distance;
       if (isValidTimeStamp(tof)) {
-        tdoaEngineSetTimeOfFlight(anchorCtx, remoteId, tof);
+        tdoaStorageSetTimeOfFlight(anchorCtx, remoteId, tof);
 
-        uint8_t anchorId = tdoaEngineGetId(anchorCtx);
-        if (anchorId == lpsTdoaStats.anchorId && remoteId == lpsTdoaStats.remoteAnchorId) {
-          lpsTdoaStats.tof = (uint16_t)tof;
+        uint8_t anchorId = tdoaStorageGetId(anchorCtx);
+        tdoaStats_t* stats = &engineState.stats;
+        if (anchorId == stats->anchorId && remoteId == stats->remoteAnchorId) {
+          stats->tof = (uint16_t)tof;
         }
       }
 
@@ -150,16 +157,16 @@ static int updateRemoteData(anchorInfo_t* anchorCtx, const void* payload) {
   return (uint8_t*)anchorDataPtr - (uint8_t*)packet;
 }
 
-static void handleLppShortPacket(anchorInfo_t* anchorCtx, const uint8_t *data, const int length) {
+static void handleLppShortPacket(tdoaAnchorContext_t* anchorCtx, const uint8_t *data, const int length) {
   uint8_t type = data[0];
 
   if (type == LPP_SHORT_ANCHORPOS) {
     struct lppShortAnchorPos_s *newpos = (struct lppShortAnchorPos_s*)&data[1];
-    tdoaEngineSetAnchorPosition(anchorCtx, newpos->x, newpos->y, newpos->z);
+    tdoaStorageSetAnchorPosition(anchorCtx, newpos->x, newpos->y, newpos->z);
   }
 }
 
-static void handleLppPacket(const int dataLength, int rangePacketLength, const packet_t* rxPacket, anchorInfo_t* anchorCtx) {
+static void handleLppPacket(const int dataLength, int rangePacketLength, const packet_t* rxPacket, tdoaAnchorContext_t* anchorCtx) {
   const int32_t payloadLength = dataLength - MAC802154_HEADER_LENGTH;
   const int32_t startOfLppDataInPayload = rangePacketLength;
   const int32_t lppDataLength = payloadLength - startOfLppDataInPayload;
@@ -173,13 +180,14 @@ static void handleLppPacket(const int dataLength, int rangePacketLength, const p
 
       // TODO krri Find better solution for communicating system state to the client
       // Send it to the "old" path to log anchor 0 - 7 positions to the client.
-      lpsHandleLppShortPacket(tdoaEngineGetId(anchorCtx), &rxPacket->payload[lppTypeInPayload], lppTypeAndPayloadLength);
+      lpsHandleLppShortPacket(tdoaStorageGetId(anchorCtx), &rxPacket->payload[lppTypeInPayload], lppTypeAndPayloadLength);
     }
   }
 }
 
 static void rxcallback(dwDevice_t *dev) {
-  lpsTdoaStats.packetsReceived++;
+  tdoaStats_t* stats = &engineState.stats;
+  stats->packetsReceived++;
 
   int dataLength = dwGetDataLength(dev);
   packet_t rxPacket;
@@ -196,13 +204,14 @@ static void rxcallback(dwDevice_t *dev) {
     const int64_t txAn_in_cl_An = packet->header.txTimeStamp;;
     const uint8_t seqNr = packet->header.seq;
 
-    anchorInfo_t* anchorCtx = getAnchorCtxForPacketProcessing(anchorId);
-    if (anchorCtx) {
-      int rangeDataLength = updateRemoteData(anchorCtx, packet);
-      tdoaEngineProcessPacket(anchorCtx, txAn_in_cl_An, rxAn_by_T_in_cl_T);
-      tdoaEngineSetRxTxData(anchorCtx, rxAn_by_T_in_cl_T, txAn_in_cl_An, seqNr);
-      handleLppPacket(dataLength, rangeDataLength, &rxPacket, anchorCtx);
-    }
+    tdoaAnchorContext_t anchorCtx;
+    uint32_t now_ms = T2M(xTaskGetTickCount());
+
+    tdoaEngineGetAnchorCtxForPacketProcessing(&engineState, anchorId, now_ms, &anchorCtx);
+    int rangeDataLength = updateRemoteData(&anchorCtx, packet);
+    tdoaEngineProcessPacket(&engineState, &anchorCtx, txAn_in_cl_An, rxAn_by_T_in_cl_T);
+    tdoaStorageSetRxTxData(&anchorCtx, rxAn_by_T_in_cl_T, txAn_in_cl_An, seqNr);
+    handleLppPacket(dataLength, rangeDataLength, &rxPacket, &anchorCtx);
 
     rangingOk = true;
   }
@@ -265,10 +274,25 @@ static uint32_t onEvent(dwDevice_t *dev, uwbEvent_t event) {
     setRadioInReceiveMode(dev);
   }
 
-  lpsTdoaStatsUpdate();
+  uint32_t now_ms = T2M(xTaskGetTickCount());
+  tdoaStatsUpdate(&engineState.stats, now_ms);
   updateRangingState();
 
   return MAX_TIMEOUT;
+}
+
+static void sendTdoaToEstimatorCallback(tdoaMeasurement_t* tdoaMeasurement) {
+    estimatorKalmanEnqueueTDOA(tdoaMeasurement);
+
+    #ifdef LPS_2D_POSITION_HEIGHT
+    // If LPS_2D_POSITION_HEIGHT is defined we assume that we are doing 2D positioning.
+    // LPS_2D_POSITION_HEIGHT contains the height (Z) that the tag will be located at
+    heightMeasurement_t heightData;
+    heightData.timestamp = xTaskGetTickCount();
+    heightData.height = LPS_2D_POSITION_HEIGHT;
+    heightData.stdDev = 0.0001;
+    estimatorKalmanEnqueueAsoluteHeight(&heightData);
+    #endif
 }
 
 #pragma GCC diagnostic push
@@ -279,8 +303,12 @@ static void Initialize(dwDevice_t *dev, lpsAlgoOptions_t* algoOptions) {
   options = algoOptions;
   options->rangingState = 0;
 
-  tdoaEngineInit();
-  lpsTdoaStatsInit();
+  uint32_t now_ms = T2M(xTaskGetTickCount());
+  tdoaEngineInit(&engineState, now_ms, sendTdoaToEstimatorCallback, LOCODECK_TS_FREQ);
+
+  #ifdef LPS_2D_POSITION_HEIGHT
+  DEBUG_PRINT("2D positioning enabled at %f m height\n", LPS_2D_POSITION_HEIGHT);
+  #endif
 
   dwSetReceiveWaitTimeout(dev, TDOA3_RECEIVE_TIMEOUT);
 
@@ -300,3 +328,25 @@ uwbAlgorithm_t uwbTdoa3TagAlgorithm = {
   .onEvent = onEvent,
   .isRangingOk = isRangingOk,
 };
+
+
+LOG_GROUP_START(tdoa3)
+LOG_ADD(LOG_UINT16, stRx, &engineState.stats.packetsReceivedRate)
+LOG_ADD(LOG_UINT16, stEst, &engineState.stats.packetsToEstimatorRate)
+LOG_ADD(LOG_UINT16, stTime, &engineState.stats.timeIsGoodRate)
+LOG_ADD(LOG_UINT16, stFound, &engineState.stats.suitableDataFoundRate)
+
+LOG_ADD(LOG_UINT16, stCc, &engineState.stats.clockCorrectionRate)
+
+LOG_ADD(LOG_UINT16, stHit, &engineState.stats.contextHitRate)
+LOG_ADD(LOG_UINT16, stMiss, &engineState.stats.contextMissRate)
+
+LOG_ADD(LOG_FLOAT, cc, &engineState.stats.clockCorrection)
+LOG_ADD(LOG_UINT16, tof, &engineState.stats.tof)
+LOG_ADD(LOG_FLOAT, tdoa, &engineState.stats.tdoa)
+LOG_GROUP_STOP(tdoa3)
+
+PARAM_GROUP_START(tdoa3)
+PARAM_ADD(PARAM_UINT8, logId, &engineState.stats.newAnchorId)
+PARAM_ADD(PARAM_UINT8, logOthrId, &engineState.stats.newRemoteAnchorId)
+PARAM_GROUP_STOP(tdoa3)
