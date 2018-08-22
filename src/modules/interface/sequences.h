@@ -5,7 +5,7 @@
 
 static point_t seqDataTakeOff[] = {
     {x: XB + 0.4, y: YB + 0.5, z: ZB + 0.0},
-  /*  {x: XB + 0.4, y: YB + 0.5, z: ZB + 0.05},
+    {x: XB + 0.4, y: YB + 0.5, z: ZB + 0.05},
     {x: XB + 0.4, y: YB + 0.5, z: ZB + 0.1},
     {x: XB + 0.4, y: YB + 0.5, z: ZB + 0.15},
     {x: XB + 0.3, y: YB + 0.5, z: ZB + 0.2},
@@ -17,19 +17,19 @@ static point_t seqDataTakeOff[] = {
     {x: XB + 0.2, y: YB + 0.3, z: ZB + 0.5},
     {x: XB + 0.2, y: YB + 0.2, z: ZB + 0.55},
     {x: XB + 0.2, y: YB + 0.2, z: ZB + 0.6},
-    {x: XB + 0.1, y: YB + 0.1, z: ZB + 0.65},*/
+    {x: XB + 0.1, y: YB + 0.1, z: ZB + 0.65},
     {x: XB + 0.1, y: YB + 0.1, z: ZB + 0.7},
     {x: XB + 0.1, y: YB + 0.0, z: ZB + 0.75},
     {x: XB + 0.1, y: YB + 0.0, z: ZB + 0.8},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 0.85},
-  /*  {x: XB + 0.0, y: YB + 0.0, z: ZB + 0.9},
+    {x: XB + 0.0, y: YB + 0.0, z: ZB + 0.9},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 0.95},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.0},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.1},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.2},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.3},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.4},
-    {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.5},*/
+    {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.5},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.6},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.7},
     {x: XB + 0.0, y: YB + 0.0, z: ZB + 1.8},

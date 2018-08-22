@@ -18,8 +18,8 @@ PYTHON2           ?= python2
 DFU_UTIL          ?= dfu-util
 CLOAD             ?= 1
 DEBUG             ?= 0
-CLOAD_SCRIPT      ?= ../crazyflie-clients-python/bin/cfloader
-#python3 -m cfloader
+CLOAD_SCRIPT      ?= python3 -m cfloader
+#../crazyflie-clients-python/bin/cfloader
 CLOAD_CMDS        ?=
 CLOAD_ARGS        ?=
 PLATFORM					?= CF2
@@ -300,7 +300,7 @@ CFLAGS += -Wdouble-promotion
 
 
 ASFLAGS = $(PROCESSOR) $(INCLUDES)
-LDFLAGS = --specs=nosys.specs --specs=nano.specs $(PROCESSOR) -Wl,-Map=$(PROG).map,--cref,--gc-sections,--undefined=uxTopUsedPriority 
+LDFLAGS = --specs=nosys.specs --specs=nano.specs $(PROCESSOR) -Wl,-Map=$(PROG).map,--cref,--gc-sections,--undefined=uxTopUsedPriority
 
 #Flags required by the ST library
 ifeq ($(CLOAD), 1)

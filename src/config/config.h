@@ -49,13 +49,10 @@
 #define PROTOCOL_VERSION 4
 
 #ifdef STM32F4XX
-<<<<<<< HEAD
   #define P_NAME "HMT Crazyflie 2.0"
-=======
 #ifndef P_NAME
   #define P_NAME "Crazyflie 2.0"
 #endif
->>>>>>> af396121bcd114bc159415dd2cb331cdbe4fcd54
   #define QUAD_FORMATION_X
 
   #define CONFIG_BLOCK_ADDRESS    (2048 * (64-1))
