@@ -45,9 +45,9 @@ static void exitStateStop();
 
 
 // #define SEQUENCE_DATA_CIRCLE
-// #define SEQUENCE_DATA_SPIRAL
+ #define SEQUENCE_DATA_SPIRAL
 // #define SEQUENCE_DATA_SQUARE
-#define SEQUENCE_DATA_HOVER
+//#define SEQUENCE_DATA_HOVER
 #include "sequences.h"
 
 
@@ -171,7 +171,7 @@ static bool hasLock() {
   lockData[lockWriteIndex][0] = getVarPX();
   lockData[lockWriteIndex][1] = getVarPY();
   lockData[lockWriteIndex][2] = getVarPZ();
-  
+
   lockWriteIndex++;
   if(lockWriteIndex >= LOCK_LENGTH) {//wrap around lock data
     lockWriteIndex = 0;

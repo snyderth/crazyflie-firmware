@@ -26,6 +26,14 @@ PLATFORM					?= CF2
 LPS_TDMA_ENABLE   ?= 0
 LPS_TDOA_ENABLE   ?= 1
 
+
+#########Autonomous Configuration##########
+ifeq ($(AUTONOMOUS_FLY), 1)
+CFLAGS += -DAUTONOMOUS_MODE
+##echo "Enabling Autonomous mode"
+endif
+
+
 ######### Stabilizer configuration ##########
 ##### Sets the name of the stabilizer module to use.
 ESTIMATOR          ?= any

@@ -122,7 +122,9 @@ void systemInit(void)
   // consolePrintf("Battery init complete\n");
   buzzerInit();
   // consolePrintf("Buzzer init complete\n");
-  autonomousInit();
+  #ifdef AUTONOMOUS_MODE
+    autonomousInit();
+  #endif
   // consolePrintf("Autonomous init complete\n");
 
   isInit = true;
