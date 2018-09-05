@@ -29,8 +29,16 @@ LPS_TDOA_ENABLE   ?= 1
 
 #########Autonomous Configuration##########
 ifeq ($(AUTONOMOUS_FLY), 1)
-CFLAGS += -DAUTONOMOUS_MODE
-##echo "Enabling Autonomous mode"
+CFLAGS += -DAUTONOMOUS_MODE=1
+endif
+ifeq ($(AUTONOMOUS_FLY), 2)
+CFLAGS += -DAUTONOMOUS_MODE=2
+endif
+ifeq ($(AUTONOMOUS_FLY), 3)
+CFLAGS += -DAUTONOMOUS_MODE=3
+endif
+ifeq ($(AUTONOMOUS_FLY), 4)
+CFLAGS += -DAUTONOMOUS_MODE=4
 endif
 
 
@@ -358,6 +366,18 @@ clean_version:
 ifeq ($(SHELL),/bin/sh)
 	@echo "  CLEAN_VERSION"
 	@rm -f version.c
+endif
+ifeq ($(AUTONOMOUS_FLY),1)
+	@echo "  Autonomous Flight Enabled, Hover mode"
+endif
+ifeq ($(AUTONOMOUS_FLY),2)
+	@echo "  Autonomous Flight Enabled, Spiral mode"
+endif
+ifeq ($(AUTONOMOUS_FLY),3)
+	@echo "  Autonomous Flight Enabled, Circle mode"
+endif
+ifeq ($(AUTONOMOUS_FLY),4)
+	@echo "  Autonomous Flight Enabled, Square mode"
 endif
 
 print_version:

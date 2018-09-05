@@ -44,10 +44,33 @@ static void handleStateStop();
 static void exitStateStop();
 
 
-// #define SEQUENCE_DATA_CIRCLE
- #define SEQUENCE_DATA_SPIRAL
-// #define SEQUENCE_DATA_SQUARE
-//#define SEQUENCE_DATA_HOVER
+#if AUTONOMOUS_MODE == 1
+#define SEQUENCE_DATA_HOVER
+#elif AUTONOMOUS_MODE == 2
+#define SEQUENCE_DATA_SPIRAL
+#elif AUTONOMOUS_MODE == 3
+#define SEQUENCE_DATA_CIRCLE
+#elif AUTONOMOUS_MODE == 4
+#define SEQUENCE_DATA_SQUARE
+#else
+#define SEQUENCE_DATA_HOVER //Will never be run, just for compilation reasons
+#endif
+
+// Printing out what sequence is running`
+/*#ifdef SEQUENCE_DATA_HOVER
+#pragma "Running Hover Sequence"
+#endif
+#ifdef SEQUENCE_DATA_CIRCE
+#pragma "Running Circle Sequence"
+#endif
+#ifdef SEQUENCE_DATA_SPIRAL
+#pragma "Running Spiral Sequence"
+#endif
+#ifdef SEQUENCE_DATA_SQUARE
+#pragma "Running Suare Sequence"
+#endif*/
+
+
 #include "sequences.h"
 
 

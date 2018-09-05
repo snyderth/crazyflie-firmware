@@ -16,8 +16,14 @@ CFLAGS += -DLOCODECK_NR_OF_ANCHORS=8
 
 
 
-## 1 enables, 0 disables, must make clean after change
-AUTONOMOUS_FLY=1
+## must make clean after change
+## 0 disables
+## 1 enables hover
+## 2 enables spiral
+## 3 enables circle
+## 4 enables square
+##
+AUTONOMOUS_FLY=4
 
 
 ## Compile positioning system for TDoA mode
