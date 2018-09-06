@@ -23,7 +23,7 @@ CFLAGS += -DLOCODECK_NR_OF_ANCHORS=8
 ## 3 enables circle
 ## 4 enables square
 ##
-AUTONOMOUS_FLY=4
+AUTONOMOUS_FLY=1
 
 
 ## Compile positioning system for TDoA mode

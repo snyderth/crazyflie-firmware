@@ -99,7 +99,7 @@ typedef enum {
 
 
 state_handler_t stateHandlers[] = {
-  {enter: 0,                         handle: handleStateUninit,                          exit: exitStateUninit},
+  {enter: 0,                         handle: handleStateUninit,          exit: exitStateUninit},
   {enter: enterStateWaitPosLock,     handle: handleStateWaitPosLock,     exit: exitStateWaitPosLock},
   {enter: enterStatePosLocked,       handle: handleStatePosLocked,       exit: exitStatePosLocked},
   {enter: enterStateTakeOff,         handle: handleStateTakeOff,         exit: exitStateTakeOff},
@@ -320,6 +320,7 @@ static void enterStatePosLocked(){
 
 }
 static void handleStatePosLocked(){
+  DEBUG_PRINT("Position Locked\n");
   changeState(ST_TAKE_OFF);
 }
 static void exitStatePosLocked(){
@@ -328,9 +329,11 @@ static void exitStatePosLocked(){
 
 
 static void enterStateTakeOff(){
+  DEBUG_PRINT("Taking off\n");
   sequenceReset(&takeOffSequence);
 }
 static void handleStateTakeOff(){
+
   if(sequenceHasNext(&takeOffSequence)){//If there is another point in the sequence
     point_t* point = sequenceReplay(&takeOffSequence);
     moveSetPoint(point);
@@ -345,6 +348,7 @@ static void exitStateTakeOff(){
 
 
 static void enterStateLand(){
+  DEBUG_PRINT("Landing\n");
   sequenceReset(&landSeq);
 }
 static void handleStateLand(){
@@ -362,6 +366,8 @@ static void exitStateLand(){
 
 
 static void enterStatePlayPreRecorded(){
+  DEBUG_PRINT("Beginning Pre-recorded flight sequence\n");
+
   sequenceReset(&path);
 }
 static void handleStatePlayPreRecorded(){
@@ -379,7 +385,7 @@ static void exitStatePlayPreRecorded(){
 
 
 static void enterStateStop(){
-
+  DEBUG_PRINT("Flight Complete!\n");
 }
 static void handleStateStop(){
   setpoint.setEmergency = true;
