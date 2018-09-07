@@ -244,8 +244,6 @@ static void autonomousFlight(xTimerHandle timer) {
 
   //This is the function that the OS runs everytime the timer expires
   stateHandlers[state].handle();
-  //DEBUG_PRINT("Autonomous flight active\n");
-
 }
 
 
