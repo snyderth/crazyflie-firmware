@@ -3,7 +3,7 @@ PLATFORM=CF2
 
 DEBUG=0
 ## Automatically reboot to bootloader before flashing
-CLOAD_CMDS = -w radio://0/100/2M/E7E7E7E7E4
+CLOAD_CMDS = -w radio://0/100/2M/E7E7E7E7E2
 ##CLOAD_CMDS = -w usb://0
 
 ##Build for TDoA v3

@@ -122,9 +122,9 @@ void systemInit(void)
   // consolePrintf("Battery init complete\n");
   buzzerInit();
   // consolePrintf("Buzzer init complete\n");
-  #if AUTONOMOUS_MODE != 0
-    autonomousInit();
-  #endif
+  // #if AUTONOMOUS_MODE != 0
+  //   autonomousInit();
+  // #endif
   // consolePrintf("Autonomous init complete\n");
 
   isInit = true;
@@ -226,7 +226,9 @@ void systemTask(void *arg)
     }
   }
   DEBUG_PRINT("Free heap: %d bytes\n", xPortGetFreeHeapSize());
-
+  #if AUTONOMOUS_MODE != 0
+    autonomousInit();
+  #endif
   workerLoop();
 
   //Should never reach this point!
