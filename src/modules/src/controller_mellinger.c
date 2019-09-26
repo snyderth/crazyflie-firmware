@@ -44,8 +44,8 @@ We added the following:
 #include "controller_mellinger.h"
 
 #define GRAVITY_MAGNITUDE (9.81f)
-
-static float g_vehicleMass = 0.032; // TODO: should be CF global for other modules
+//0.032 is weight of stock, 0.037 is weight with Qi and LPS
+static float g_vehicleMass = 0.037; // TODO: should be CF global for other modules
 static float massThrust = 132000;
 
 // XY Position PID
@@ -92,6 +92,7 @@ static float i_error_m_z = 0;
 
 // Logging variables
 static struct vec z_axis_desired;
+static struct vec setpoint_desired;
 
 void controllerMellingerReset(void)
 {
@@ -135,6 +136,8 @@ void controllerMellinger(control_t *control, setpoint_t *setpoint,
   struct vec eR, ew, M;
   float dt;
   float desiredYaw = 0; //deg
+
+  setpoint_desired = mkvec(setpoint->position.x, setpoint->position.y, setpoint->position.z);
 
   if (!RATE_DO_EXECUTE(ATTITUDE_RATE, tick)) {
     return;
@@ -329,6 +332,9 @@ LOG_GROUP_START(ctrlMel)
 LOG_ADD(LOG_FLOAT, zdx, &z_axis_desired.x)
 LOG_ADD(LOG_FLOAT, zdy, &z_axis_desired.y)
 LOG_ADD(LOG_FLOAT, zdz, &z_axis_desired.z)
+LOG_ADD(LOG_FLOAT, setpt_dx, &setpoint_desired.x)
+LOG_ADD(LOG_FLOAT, setpt_dy, &setpoint_desired.y)
+LOG_ADD(LOG_FLOAT, setpt_dz, &setpoint_desired.z)
 LOG_ADD(LOG_FLOAT, i_err_x, &i_error_x)
 LOG_ADD(LOG_FLOAT, i_err_y, &i_error_y)
 LOG_ADD(LOG_FLOAT, i_err_z, &i_error_z)
